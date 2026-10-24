@@ -21,7 +21,9 @@ default_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://personalized-travel-itinerary-planner-eta.vercel.app",
+    "https://personalized-travel-itinerary-planner.vercel.app",
 ]
+
 env_origins = [
     o.strip()
     for o in os.getenv("ALLOWED_ORIGINS", "").split(",")
@@ -53,4 +55,7 @@ def root() -> dict:
         "message": "Personalized Travel Itinerary Planner API",
         "docs": "/docs",
         "health": "/health",
+        "version": "0.2.0-cors-fixed",
+        "allowed_origins": allowed_origins,
     }
+
