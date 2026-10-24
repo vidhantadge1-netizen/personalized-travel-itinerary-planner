@@ -9,17 +9,21 @@ class CorsConfigurationTests(unittest.TestCase):
         self.client = TestClient(app)
 
     def test_cors_allows_vercel_production_origin(self):
-        origin = "https://personalized-travel-itinerary-planner-eta.vercel.app"
-        response = self.client.options(
-            "/itineraries",
-            headers={
-                "Origin": origin,
-                "Access-Control-Request-Method": "POST",
-                "Access-Control-Request-Headers": "content-type",
-            },
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.headers.get("access-control-allow-origin"), origin)
+        for origin in [
+            "https://personalized-travel-itinerary-plann-eta.vercel.app",
+            "https://personalized-travel-itinerary-planner-eta.vercel.app",
+        ]:
+            response = self.client.options(
+                "/itineraries",
+                headers={
+                    "Origin": origin,
+                    "Access-Control-Request-Method": "POST",
+                    "Access-Control-Request-Headers": "content-type",
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.headers.get("access-control-allow-origin"), origin)
+
 
     def test_cors_allows_vercel_preview_domains(self):
         origin = "https://personalized-travel-itinerary-planner-git-main.vercel.app"

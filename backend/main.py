@@ -20,9 +20,12 @@ default_origins = [
     "http://127.0.0.1:5173",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://personalized-travel-itinerary-plann-eta.vercel.app",
+    "https://personalized-travel-itinerary-plann.vercel.app",
     "https://personalized-travel-itinerary-planner-eta.vercel.app",
     "https://personalized-travel-itinerary-planner.vercel.app",
 ]
+
 
 env_origins = [
     o.strip()
