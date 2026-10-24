@@ -1,30 +1,48 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const rawApiUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+export const API_URL = rawApiUrl.replace(/\/+$/, "");
 
 export async function getHealth() {
-  const response = await fetch(`${API_URL}/health`);
-  if (!response.ok) {
-    throw new Error("Backend health check failed");
+  try {
+    const response = await fetch(`${API_URL}/health`);
+    if (!response.ok) {
+      throw new Error(`Backend health check failed (${response.status})`);
+    }
+    return response.json();
+  } catch (err) {
+    throw new Error(`Unable to reach backend at ${API_URL}: ${err.message}`);
   }
-  return response.json();
 }
 
 export async function generateItinerary(trip) {
-  const response = await fetch(`${API_URL}/itineraries`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(trip),
-  });
+  let response;
+  try {
+    response = await fetch(`${API_URL}/itineraries`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(trip),
+    });
+  } catch (err) {
+    throw new Error(
+      `Unable to reach backend at ${API_URL}. Check VITE_API_URL and CORS: ${err.message}`
+    );
+  }
 
   if (!response.ok) {
     const detail = await response.text();
-    throw new Error(detail || "Could not generate itinerary");
+    throw new Error(detail || `Could not generate itinerary (${response.status})`);
   }
 
   return response.json();
 }
 
 export async function getItinerary(itineraryId) {
-  const response = await fetch(`${API_URL}/itineraries/${itineraryId}`);
+  let response;
+  try {
+    response = await fetch(`${API_URL}/itineraries/${itineraryId}`);
+  } catch (err) {
+    throw new Error(`Unable to reach backend at ${API_URL}: ${err.message}`);
+  }
+
   if (!response.ok) {
     const detail = await response.text();
     throw new Error(detail || `Could not fetch itinerary with id ${itineraryId}`);
@@ -33,7 +51,14 @@ export async function getItinerary(itineraryId) {
 }
 
 export async function getLatestItinerary() {
-  const response = await fetch(`${API_URL}/itineraries/latest`);
+  let response;
+  try {
+    response = await fetch(`${API_URL}/itineraries/latest`);
+  } catch (err) {
+    console.warn(`Could not reach backend at ${API_URL}:`, err.message);
+    return null;
+  }
+
   if (!response.ok) {
     if (response.status === 404) {
       return null;
@@ -43,4 +68,5 @@ export async function getLatestItinerary() {
   }
   return response.json();
 }
+
 
