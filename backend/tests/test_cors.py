@@ -24,6 +24,14 @@ class CorsConfigurationTests(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.headers.get("access-control-allow-origin"), origin)
 
+    def test_cors_allows_get_health_from_vercel(self):
+        origin = "https://personalized-travel-itinerary-plann-eta.vercel.app"
+        response = self.client.get(
+            "/health",
+            headers={"Origin": origin},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("access-control-allow-origin"), origin)
 
     def test_cors_allows_vercel_preview_domains(self):
         origin = "https://personalized-travel-itinerary-planner-git-main.vercel.app"

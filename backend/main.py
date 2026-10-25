@@ -28,11 +28,11 @@ default_origins = [
 
 
 env_origins = [
-    o.strip()
+    o.strip().rstrip("/")
     for o in os.getenv("ALLOWED_ORIGINS", "").split(",")
     if o.strip()
 ]
-frontend_url = os.getenv("FRONTEND_URL", "").strip()
+frontend_url = os.getenv("FRONTEND_URL", "").strip().rstrip("/")
 if frontend_url and frontend_url not in default_origins:
     env_origins.append(frontend_url)
 
