@@ -14,8 +14,13 @@ app = FastAPI(
 )
 
 
+def normalize_origin(origin: str) -> str:
+    """Trim whitespace and remove trailing slashes from an origin URL."""
+    return origin.strip().rstrip("/") if origin else ""
+
+
 # Allowed origins for local dev, Vercel production and preview deployments
-default_origins = [
+raw_default_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:3000",
@@ -26,13 +31,16 @@ default_origins = [
     "https://personalized-travel-itinerary-planner.vercel.app",
 ]
 
+default_origins = [
+    normalize_origin(o) for o in raw_default_origins if normalize_origin(o)
+]
 
 env_origins = [
-    o.strip().rstrip("/")
+    normalize_origin(o)
     for o in os.getenv("ALLOWED_ORIGINS", "").split(",")
-    if o.strip()
+    if normalize_origin(o)
 ]
-frontend_url = os.getenv("FRONTEND_URL", "").strip().rstrip("/")
+frontend_url = normalize_origin(os.getenv("FRONTEND_URL", ""))
 if frontend_url and frontend_url not in default_origins:
     env_origins.append(frontend_url)
 
@@ -43,7 +51,7 @@ app.add_middleware(
     allow_origins=allowed_origins,
     allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$|^https://[a-zA-Z0-9_-]+\.vercel\.app$|^https://.*\.vercel\.app$",
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
     allow_headers=["*"],
 )
 

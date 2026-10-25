@@ -69,5 +69,41 @@ class CorsConfigurationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
 
 
+    def test_cors_preflight_health_from_exact_vercel_origin(self):
+        origin = "https://personalized-travel-itinerary-plann-eta.vercel.app"
+        response = self.client.options(
+            "/health",
+            headers={
+                "Origin": origin,
+                "Access-Control-Request-Method": "GET",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("access-control-allow-origin"), origin)
+        allow_methods = response.headers.get("access-control-allow-methods", "")
+        for method in ["GET", "POST", "PUT", "DELETE", "OPTIONS"]:
+            self.assertIn(method, allow_methods)
+
+    def test_cors_preflight_allows_required_methods_and_headers(self):
+        origin = "https://personalized-travel-itinerary-plann-eta.vercel.app"
+        for method in ["GET", "POST", "PUT", "DELETE"]:
+            response = self.client.options(
+                "/itineraries",
+                headers={
+                    "Origin": origin,
+                    "Access-Control-Request-Method": method,
+                    "Access-Control-Request-Headers": "content-type, authorization",
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.headers.get("access-control-allow-origin"), origin)
+
+    def test_normalize_origin_trims_whitespace_and_slashes(self):
+        from main import normalize_origin
+        self.assertEqual(normalize_origin("  https://example.com/  "), "https://example.com")
+        self.assertEqual(normalize_origin("https://example.com///"), "https://example.com")
+        self.assertEqual(normalize_origin(""), "")
+
+
 if __name__ == "__main__":
     unittest.main()
